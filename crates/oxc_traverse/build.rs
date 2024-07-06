@@ -11,9 +11,9 @@ fn main() {
     println!("cargo:rerun-if-changed=../oxc_ast/src/ast");
 
     // Run NodeJS build script
-    let status = std::process::Command::new("node")
-        .arg("./scripts/build.mjs")
-        .status()
-        .expect("Failed to run NodeJS build script");
-    assert!(status.success(), "Failed to run NodeJS build script");
+    // let status = std::process::Command::new("node")
+    //     .arg("./scripts/build.mjs")
+    //     .status()
+    //     .expect("Failed to run NodeJS build script");
+    // assert!(status.success(), "Failed to run NodeJS build script");
 }

@@ -20,7 +20,7 @@ use rustc_hash::FxHashSet;
 use crate::{
     partial_loader::{JavaScriptSource, PartialLoader, LINT_PARTIAL_LOADER_EXT},
     utils::read_to_string,
-    Fixer, Linter, Message,
+    Fixer, LintContext, Linter, Message,
 };
 
 pub struct LintServiceOptions {

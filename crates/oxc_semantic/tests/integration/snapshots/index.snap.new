@@ -1,0 +1,58 @@
+---
+source: crates/oxc_semantic/tests/integration/analyzer.rs
+assertion_line: 22
+expression: snapshot
+input_file: crates/oxc_semantic/tests/integration/analyzer_fixtures/index.tsx
+---
+  ☞ Expression type
+    ╭─[/Users/cameron/github/Boshen/oxc/crates/oxc_semantic/tests/integration/analyzer_fixtures/index.tsx:11:20]
+ 10 │ 
+ 11 │     let l = typeof bar;
+    ·                    ───
+ 12 │ }
+    ╰────
+  help: Type: Literal(String)
+
+  ☞ Expression type
+    ╭─[/Users/cameron/github/Boshen/oxc/crates/oxc_semantic/tests/integration/analyzer_fixtures/index.tsx:11:13]
+ 10 │ 
+ 11 │     let l = typeof bar;
+    ·             ──────────
+ 12 │ }
+    ╰────
+  help: Type: Keyword(String)
+
+  ☞ Expression type
+   ╭─[/Users/cameron/github/Boshen/oxc/crates/oxc_semantic/tests/integration/analyzer_fixtures/index.tsx:1:21]
+ 1 │ const foo: number = 1;
+   ·                     ─
+ 2 │ 
+   ╰────
+  help: Type: Literal(Number(1.0))
+
+  ☞ Expression type
+   ╭─[/Users/cameron/github/Boshen/oxc/crates/oxc_semantic/tests/integration/analyzer_fixtures/index.tsx:4:1]
+ 3 │ 
+ 4 │ foo;
+   · ───
+ 5 │ 
+   ╰────
+  help: Type: Keyword(Number)
+
+  ☞ Expression type
+   ╭─[/Users/cameron/github/Boshen/oxc/crates/oxc_semantic/tests/integration/analyzer_fixtures/index.tsx:7:5]
+ 6 │ 
+ 7 │ if (foo) {
+   ·     ───
+ 8 │     let bar = "";
+   ╰────
+  help: Type: Keyword(Number)
+
+  ☞ Expression type
+   ╭─[/Users/cameron/github/Boshen/oxc/crates/oxc_semantic/tests/integration/analyzer_fixtures/index.tsx:8:15]
+ 7 │ if (foo) {
+ 8 │     let bar = "";
+   ·               ──
+ 9 │ 
+   ╰────
+  help: Type: Literal(String)

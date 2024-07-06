@@ -140,6 +140,17 @@ impl OxcDiagnostic {
             }),
         }
     }
+    pub fn advice<T: Into<Cow<'static, str>>>(message: T) -> Self {
+        Self {
+            inner: Box::new(OxcDiagnosticInner {
+                message: message.into(),
+                labels: None,
+                help: None,
+                severity: Severity::Advice,
+                code: OxcCode::default(),
+            }),
+        }
+    }
 
     #[inline]
     pub fn with_error_code<T: Into<Cow<'static, str>>, U: Into<Cow<'static, str>>>(
