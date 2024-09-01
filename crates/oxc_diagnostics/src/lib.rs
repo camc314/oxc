@@ -143,6 +143,7 @@ impl OxcDiagnostic {
     pub fn advice<T: Into<Cow<'static, str>>>(message: T) -> Self {
         Self {
             inner: Box::new(OxcDiagnosticInner {
+                url: None,
                 message: message.into(),
                 labels: None,
                 help: None,

@@ -83,7 +83,6 @@ impl<'a> Analyzer {
             Statement::VariableDeclaration(v) => self.analyze_variable_declaration(v),
             Statement::FunctionDeclaration(v) => self.analyze_function_declaration(v),
             Statement::ClassDeclaration(v) => self.analyze_class_declaration(v),
-            Statement::UsingDeclaration(v) => self.analyze_using_declaration(v),
             Statement::TSTypeAliasDeclaration(v) => self.analyze_ts_type_alias_declaration(v),
             Statement::TSInterfaceDeclaration(v) => self.analyze_ts_interface_declaration(v),
             Statement::TSEnumDeclaration(v) => self.analyze_ts_enum_declaration(v),
@@ -152,9 +151,6 @@ impl<'a> Analyzer {
             ForStatementLeft::VariableDeclaration(variable_declaration) => {
                 self.analyze_variable_declaration(variable_declaration);
             }
-            ForStatementLeft::UsingDeclaration(using_declaration) => {
-                self.analyze_using_declaration(using_declaration);
-            }
             ForStatementLeft::AssignmentTargetIdentifier(assignment_target_identifier) => {
                 self.analyze_identifier_reference(assignment_target_identifier);
             }
@@ -215,7 +211,6 @@ impl<'a> Analyzer {
             ForStatementInit::VariableDeclaration(variable_declaration) => {
                 self.analyze_variable_declaration(variable_declaration);
             }
-            ForStatementInit::UsingDeclaration(_) => todo!(),
             _ => {
                 self.analyze_expression(for_statement_init.to_expression());
             }
@@ -313,11 +308,6 @@ impl<'a> Analyzer {
 
     #[allow(clippy::unused_self)]
     fn analyze_class_declaration(&mut self, class_declaration: &Class<'a>) {
-        // TODO
-    }
-
-    #[allow(clippy::unused_self)]
-    fn analyze_using_declaration(&mut self, using_declaration: &UsingDeclaration<'a>) {
         // TODO
     }
 }
@@ -1783,7 +1773,3 @@ mod tests {
         analyzer.analyze_program(program);
     }
 }
-
-// here is the plan
-// pass 1 - do resolution things
-// pass 2 - do type things

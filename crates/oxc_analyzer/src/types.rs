@@ -11,7 +11,12 @@ pub enum Type {
     Object(ObjectType),
     Union(Vec<Type>),
     Tuple(TupleType),
+
+    Reference(ReferenceType),
 }
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ReferenceType {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TupleType {

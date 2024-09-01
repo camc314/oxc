@@ -124,6 +124,7 @@ struct Globals {
 pub struct Analyzer {
     pub globals: Globals,
 
+    // pub references: Vec<ReferenceId>,
     pub scopes: ScopeTree,
     pub type_map: HashMap<SymbolId, TypeInfo>,
     pub expression_types: HashMap<Span, Type>,
@@ -328,26 +329,32 @@ impl<'a> Analyzer {
         }
     }
 
-    pub fn reference_type(&mut self, ident_ref: &IdentifierReference) -> Option<SymbolId> {
+    pub fn reference_type(&mut self, ident_ref: &IdentifierReference) -> ReferenceId {
         dbg!("looking up ref type", &ident_ref);
-        if let Some(symbol_id) = self.scopes.lookup_type(&ident_ref.name) {
-            // if let Some(type_info) = self.type_map.get_mut(&symbol_id) {
-            //     type_info.references.push(ident_ref.span);
-            // }
-            ident_ref.reference_id.set(Some(ReferenceId::from_usize(symbol_id.index())));
-            Some(symbol_id)
-        } else if let Some(global_symbol_id) = self.globals.types.get(ident_ref.name.as_str()) {
-            // if let Some(type_info) = self.type_map.get_mut(global_symbol_id) {
-            //     type_info.references.push(ident_ref.span);
-            // }
 
-            ident_ref.reference_id.set(Some(ReferenceId::from_usize(global_symbol_id.index())));
-            Some(*global_symbol_id)
-        } else {
-            dbg!(ident_ref);
-            panic!();
-            None
-        }
+        // don't try to find it's decl
+        // simply return
+
+        panic!();
+
+        // if let Some(symbol_id) = self.scopes.lookup_type(&ident_ref.name) {
+        //     // if let Some(type_info) = self.type_map.get_mut(&symbol_id) {
+        //     //     type_info.references.push(ident_ref.span);
+        //     // }
+        //     ident_ref.reference_id.set(Some(ReferenceId::from_usize(symbol_id.index())));
+        //     Some(symbol_id)
+        // } else if let Some(global_symbol_id) = self.globals.types.get(ident_ref.name.as_str()) {
+        //     // if let Some(type_info) = self.type_map.get_mut(global_symbol_id) {
+        //     //     type_info.references.push(ident_ref.span);
+        //     // }
+
+        //     ident_ref.reference_id.set(Some(ReferenceId::from_usize(global_symbol_id.index())));
+        //     Some(*global_symbol_id)
+        // } else {
+        //     // dbg!(ident_ref);
+        //     // panic!();
+        //     // None
+        // }
     }
 
     pub fn narrow_type(&mut self, symbol_id: SymbolId, narrowed_type: Type) {
@@ -601,7 +608,6 @@ impl<'a> Analyzer {
             Statement::VariableDeclaration(v) => self.analyze_variable_declaration(v),
             Statement::FunctionDeclaration(v) => self.analyze_function_declaration(v),
             Statement::ClassDeclaration(v) => self.analyze_class_declaration(v),
-            Statement::UsingDeclaration(v) => self.analyze_using_declaration(v),
             Statement::TSTypeAliasDeclaration(v) => self.analyze_ts_type_alias_declaration(v),
             Statement::TSInterfaceDeclaration(v) => self.analyze_ts_interface_declaration(v),
             Statement::TSEnumDeclaration(v) => self.analyze_ts_enum_declaration(v),
@@ -671,9 +677,6 @@ impl<'a> Analyzer {
             ForStatementLeft::VariableDeclaration(variable_declaration) => {
                 self.analyze_variable_declaration(variable_declaration);
             }
-            ForStatementLeft::UsingDeclaration(using_declaration) => {
-                self.analyze_using_declaration(using_declaration);
-            }
             ForStatementLeft::AssignmentTargetIdentifier(assignment_target_identifier) => {
                 self.analyze_identifier_reference(assignment_target_identifier);
             }
@@ -734,7 +737,6 @@ impl<'a> Analyzer {
             ForStatementInit::VariableDeclaration(variable_declaration) => {
                 self.analyze_variable_declaration(variable_declaration);
             }
-            ForStatementInit::UsingDeclaration(_) => todo!(),
             _ => {
                 self.analyze_expression(for_statement_init.to_expression());
             }
@@ -832,11 +834,6 @@ impl<'a> Analyzer {
 
     #[allow(clippy::unused_self)]
     fn analyze_class_declaration(&mut self, class_declaration: &Class<'a>) {
-        // TODO
-    }
-
-    #[allow(clippy::unused_self)]
-    fn analyze_using_declaration(&mut self, using_declaration: &UsingDeclaration<'a>) {
         // TODO
     }
 }
@@ -2390,22 +2387,29 @@ impl<'a> Analyzer {
     // type Dogs = foo;
     //             ^^^
     fn analyze_ts_type_reference(&mut self, ts_type_reference: &TSTypeReference<'a>) -> Type {
-        let id = if let TSTypeName::IdentifierReference(i) = &ts_type_reference.type_name {
-            self.reference_type(&i)
-        } else {
-            None
-        };
-
-        if let Some(id) = id {
-            self.type_map
-                .get(&id)
-                .cloned()
-                .map(|t| t.current_type)
-                .unwrap_or(Type::Keyword(KeywordType::Any))
-        } else {
-            Type::Keyword(KeywordType::Any)
+        if let TSTypeName::IdentifierReference(i) = &ts_type_reference.type_name {
+            self.reference_type(&i);
         }
+        todo!();
     }
+
+    // fn analyze_ts_type_reference(&mut self, ts_type_reference: &TSTypeReference<'a>) -> Type {
+    //     let id = if let TSTypeName::IdentifierReference(i) = &ts_type_reference.type_name {
+    //         self.reference_type(&i)
+    //     } else {
+    //         None
+    //     };
+
+    //     if let Some(id) = id {
+    //         self.type_map
+    //             .get(&id)
+    //             .cloned()
+    //             .map(|t| t.current_type)
+    //             .unwrap_or(Type::Keyword(KeywordType::Any))
+    //     } else {
+    //         Type::Keyword(KeywordType::Any)
+    //     }
+    // }
 
     // type t = string | number;
     //          ^^^^^^^^^^^^^^^
