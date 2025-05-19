@@ -391,6 +391,7 @@ mod unicorn {
     pub mod prefer_array_flat_map;
     pub mod prefer_array_index_of;
     pub mod prefer_array_some;
+    pub mod prefer_at;
     pub mod prefer_blob_reading_methods;
     pub mod prefer_code_point;
     pub mod prefer_date_now;
@@ -1035,6 +1036,7 @@ oxc_macros::declare_all_lint_rules! {
     unicorn::no_zero_fractions,
     unicorn::number_literal_case,
     unicorn::numeric_separators_style,
+    unicorn::prefer_at,
     unicorn::prefer_object_from_entries,
     unicorn::prefer_array_find,
     unicorn::prefer_array_index_of,
