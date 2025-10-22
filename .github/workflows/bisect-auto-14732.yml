@@ -116,7 +116,7 @@ jobs:
           cd napi/parser
           
           # Build with allocator feature
-          if ! pnpm build --features allocator --release; then
+          if ! pnpm build; then
             echo "Build failed - skipping this commit"
             exit 125  # Tell git bisect to skip this commit
           fi
