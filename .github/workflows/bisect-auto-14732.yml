@@ -137,14 +137,18 @@ jobs:
             # Check if all workers completed
             if grep -q "All workers done!" test-output.log; then
               echo "✅ Test PASSED - All workers completed"
+              git reset --hard  # Clean up before next bisect step
+
               exit 0  # Good commit
             else
               echo "❌ Test FAILED - Not all workers completed"
+              git reset --hard  # Clean up before next bisect step
               exit 1  # Bad commit
             fi
           else
             EXIT_CODE=$?
             echo "❌ Test FAILED - Exit code: $EXIT_CODE (crash or timeout)"
+            git reset --hard  # Clean up before next bisect step
             exit 1  # Bad commit
           fi
           SCRIPT_EOF
