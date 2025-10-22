@@ -58,7 +58,7 @@ jobs:
         shell: bash
         run: |
           echo "Building oxc-parser..."
-          pnpm build --features allocator --release
+          pnpm build
           
           echo ""
           echo "=== Build completed. Verifying native binding... ==="
