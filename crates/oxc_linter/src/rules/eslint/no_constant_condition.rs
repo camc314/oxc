@@ -4,9 +4,13 @@ use oxc_macros::declare_oxc_lint;
 use oxc_span::{GetSpan, Span};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
-use crate::{AstNode, ast_util::IsConstant, context::LintContext, rule::Rule};
+use crate::{
+    AstNode,
+    ast_util::IsConstant,
+    context::LintContext,
+    rule::{DefaultRuleConfig, Rule},
+};
 
 fn no_constant_condition_diagnostic(span: Span) -> OxcDiagnostic {
     OxcDiagnostic::warn("Unexpected constant condition")
@@ -14,7 +18,7 @@ fn no_constant_condition_diagnostic(span: Span) -> OxcDiagnostic {
         .with_label(span.label("this expression will always evaluate to the same value"))
 }
 
-#[derive(Debug, Default, Clone, PartialEq, JsonSchema, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, PartialEq, JsonSchema, Serialize)]
 #[serde(rename_all = "camelCase")]
 enum CheckLoops {
     All,
@@ -23,29 +27,42 @@ enum CheckLoops {
     None,
 }
 
-impl CheckLoops {
-    fn from(value: &Value) -> Option<Self> {
-        match value {
-            Value::String(str) => match str.as_str() {
-                "all" => Some(Self::All),
-                "allExceptWhileTrue" => Some(Self::AllExceptWhileTrue),
-                "none" => Some(Self::None),
-                _ => None,
-            },
-            Value::Bool(bool) => {
-                if *bool {
-                    Some(Self::All)
-                } else {
-                    Some(Self::None)
-                }
-            }
-            _ => None,
+impl<'de> Deserialize<'de> for CheckLoops {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        #[serde(untagged)]
+        enum CheckLoopsConfig {
+            Bool(bool),
+            String(CheckLoopsString),
         }
+
+        #[derive(Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        enum CheckLoopsString {
+            All,
+            AllExceptWhileTrue,
+            None,
+        }
+
+        Ok(match CheckLoopsConfig::deserialize(deserializer)? {
+            CheckLoopsConfig::Bool(true) | CheckLoopsConfig::String(CheckLoopsString::All) => {
+                Self::All
+            }
+            CheckLoopsConfig::Bool(false) | CheckLoopsConfig::String(CheckLoopsString::None) => {
+                Self::None
+            }
+            CheckLoopsConfig::String(CheckLoopsString::AllExceptWhileTrue) => {
+                Self::AllExceptWhileTrue
+            }
+        })
     }
 }
 
 #[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase", default)]
+#[serde(rename_all = "camelCase", default, deny_unknown_fields)]
 pub struct NoConstantCondition {
     /// Configuration option to specify whether to check for constant conditions in loops.
     ///
@@ -108,15 +125,8 @@ declare_oxc_lint!(
 );
 
 impl Rule for NoConstantCondition {
-    fn from_configuration(value: Value) -> Result<Self, serde_json::error::Error> {
-        let obj = value.get(0);
-
-        Ok(Self {
-            check_loops: obj
-                .and_then(|v| v.get("checkLoops"))
-                .and_then(CheckLoops::from)
-                .unwrap_or_default(),
-        })
+    fn from_configuration(value: serde_json::Value) -> Result<Self, serde_json::error::Error> {
+        serde_json::from_value::<DefaultRuleConfig<Self>>(value).map(DefaultRuleConfig::into_inner)
     }
 
     fn run<'a>(&self, node: &AstNode<'a>, ctx: &LintContext<'a>) {
